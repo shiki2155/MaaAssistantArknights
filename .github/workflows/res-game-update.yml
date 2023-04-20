@@ -9,7 +9,6 @@ on:
         required: false
 
 jobs:
-
   build-resource-updater:
     runs-on: windows-latest
     strategy:
