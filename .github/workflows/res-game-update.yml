@@ -1,0 +1,32 @@
+name: res-game-update
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_message:
+        description: 'Commit Message'
+        type: string
+        required: false
+
+jobs:
+
+  build-resource-updater:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - msbuild_target: x64
+            lowercase_target: x64
+      fail-fast: false
+    env:
+      MAABUILDER_TARGET_PLATFORM: ${{ matrix.msbuild_target }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Bootstrap MaaDeps
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 maadeps-download.py ${{ matrix.lowercase_target }}-windows
+      - name: Build Resource Updater
+        run: |
+          MSBUILD $GITHUB_WORKSPACE\MaaAssistantArknights\tools\ResourceUpdater.vcxproj /t:rebuild /p:Configuration="Release";Platform="x64" /m
